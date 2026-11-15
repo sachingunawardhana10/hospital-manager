@@ -49,4 +49,8 @@ public class Patient {
     @Column(nullable = false)
     private String address;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
+    private AppUser user;
+
 }

@@ -1,8 +1,6 @@
-
 package com.example.hospitalmanager.repository;
 
 import com.example.hospitalmanager.model.Appointment;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,6 +9,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findAllByDoctor_Id(Long doctorId);
 
-    boolean existsByPatient_Id(Long patientId);
+    List<Appointment> findAllByPatient_Id(Long patientId);
 
+    boolean existsByPatient_Id(Long patientId);
 }

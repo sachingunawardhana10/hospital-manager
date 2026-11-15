@@ -7,7 +7,9 @@ import com.example.hospitalmanager.dto.RegisterRequest;
 import com.example.hospitalmanager.dto.UserResponse;
 import com.example.hospitalmanager.exception.ApiException;
 import com.example.hospitalmanager.model.AppUser;
+import com.example.hospitalmanager.model.Patient;
 import com.example.hospitalmanager.model.Role;
+import com.example.hospitalmanager.repository.PatientRepository;
 import com.example.hospitalmanager.repository.UserRepository;
 import com.example.hospitalmanager.security.JwtService;
 
@@ -22,16 +24,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PatientRepository patientRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
     public AuthService(
             UserRepository userRepository,
+            PatientRepository patientRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
             JwtService jwtService) {
+
         this.userRepository = userRepository;
+        this.patientRepository = patientRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
@@ -60,6 +66,16 @@ public class AuthService {
         user.setRole(Role.PATIENT);
 
         AppUser savedUser = userRepository.save(user);
+
+        Patient patient = new Patient();
+        patient.setUser(savedUser);
+        patient.setName(request.name());
+        patient.setEmail(request.email());
+        patient.setPhone(request.phone());
+        patient.setDateOfBirth(request.dateOfBirth());
+        patient.setAddress(request.address());
+
+        patientRepository.save(patient);
 
         return new UserResponse(
                 savedUser.getId(),
@@ -110,4 +126,5 @@ public class AuthService {
                 user.getRole()
         );
     }
+
 }
