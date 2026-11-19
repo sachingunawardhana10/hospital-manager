@@ -75,20 +75,24 @@ public class AppointmentService {
     @Transactional(readOnly = true)
     public List<AppointmentResponse> getDoctorAppointments(String username) {
 
-        AppUser doctor = userRepository.findByUsername(username)
+        AppUser user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException(
-                        HttpStatus.NOT_FOUND,
-                        "Doctor not found"
-                ));
+                        HttpStatus.NOT_FOUND, "User not found"));
 
-        if (doctor.getRole() != Role.DOCTOR) {
-            throw new ApiException(
-                    HttpStatus.FORBIDDEN,
-                    "Only doctors can view doctor appointments"
-            );
+        if (user.getRole() == Role.ADMIN) {
+            return appointmentRepository.findAll()
+                    .stream()
+                    .map(this::convertToResponse)
+                    .toList();
         }
 
-        return appointmentRepository.findAllByDoctor_Id(doctor.getId())
+        if (user.getRole() != Role.DOCTOR) {
+            throw new ApiException(
+                    HttpStatus.FORBIDDEN,
+                    "Only doctors and administrators can view appointments");
+        }
+
+        return appointmentRepository.findAllByDoctor_Id(user.getId())
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
